@@ -1,40 +1,39 @@
-import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
+// src/App.js
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+
+// Import komponen
+import UserHome from "./pages/UserHome"; // <-- Import Halaman Home Baru
 import Register from "./pages/Register";
 import Login from "./pages/Login";
 import Fields from "./pages/Fields";
-import Bookings from "./pages/Bookings";
 import Dashboard from "./pages/Dashboard";
 import Profile from "./pages/Profile";
-import RegisterAdmin from "./pages/RegisterAdmin";
-
+import AdminBookings from "./pages/AdminBookings";
 
 function App() {
   return (
     <Router>
-      <nav style={{ marginBottom: "20px" }}>
-        <Link to="/register">Register</Link> |{" "}
-        <Link to="/login">Login</Link> |{" "}
-        <Link to="/fields">Fields</Link> |{" "}
-        <Link to="/bookings">Bookings</Link> |{" "}
-        <Link to="/dashboard">Dashboard</Link> |{" "}
-        <Link to="/profile">Profile</Link>
-      </nav>
+      
+      
+      <main>
+        <Routes>
+          {/* Arahkan halaman utama langsung ke register */}
+          <Route path="/" element={<Navigate to="/register" />} />
+          
+          <Route path="/home" element={<UserHome />} /> {/* <-- Route untuk Halaman Home setelah login */}
+          <Route path="/register" element={<Register />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/fields" element={<Fields />} />
+          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/profile" element={<Profile />} />
+          <Route path="/admin/bookings" element={<AdminBookings />} />
 
-      <Routes>
-        <Route path="/register" element={<Register />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/fields" element={<Fields />} />
-        <Route path="/bookings" element={<Bookings />} />
-        <Route path="/dashboard" element={<Dashboard />} />
-        <Route path="/profile" element={<Profile />} />
-        <Route path="*" element={<Login />} /> {/* fallback */}
-        <Route path="/register-admin" element={<RegisterAdmin />} />
-
-      </Routes>
+          {/* Fallback route, arahkan ke register jika halaman tidak ditemukan */}
+          <Route path="*" element={<Navigate to="/register" />} /> 
+        </Routes>
+      </main>
     </Router>
   );
 }
-
-
 
 export default App;
