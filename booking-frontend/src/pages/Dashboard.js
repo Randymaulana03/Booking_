@@ -1,6 +1,8 @@
+// src/pages/Dashboard.jsx
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import "./Dashboard.css"; // Impor file CSS baru
 
 export default function Dashboard() {
   const navigate = useNavigate();
@@ -37,7 +39,11 @@ export default function Dashboard() {
   const getDayName = (d) =>
     d.toLocaleDateString("id-ID", { weekday: "long" });
   const getFormattedDate = (d) =>
-    d.toLocaleDateString("id-ID", { day: "numeric", month: "long", year: "numeric" });
+    d.toLocaleDateString("id-ID", {
+      day: "numeric",
+      month: "long",
+      year: "numeric",
+    });
 
   const handleBooking = async (hour, fieldId, price) => {
     if (!user) {
@@ -70,83 +76,75 @@ export default function Dashboard() {
   };
 
   return (
-    <div style={{ textAlign: "center", marginTop: "20px" }}>
-      <h1>Booking Lapangan</h1>
+    <div className="dashboard-container">
+      <h1 className="dashboard-title">Jadwal Booking Lapangan</h1>
 
-      <div style={{ marginBottom: "20px" }}>
-        <button onClick={handlePrev} disabled={date <= today}>
-          ⬅ Prev
+      <div className="date-navigator">
+        <button
+          className="nav-button"
+          onClick={handlePrev}
+          disabled={date <= today}
+        >
+          ⬅ Sebelumnya
         </button>
-        <span style={{ margin: "0 15px", fontWeight: "bold" }}>
+        <span className="current-date">
           {getDayName(date)} - {getFormattedDate(date)}
         </span>
-        <button onClick={handleNext}>Next ➡</button>
+        <button className="nav-button" onClick={handleNext}>
+          Berikutnya ➡
+        </button>
       </div>
 
-      <div
-        style={{
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-          gap: "10px",
-        }}
-      >
+      <div className="slots-container">
         {slots.map((hour) => {
           const now = new Date();
           const slotTime = new Date(date);
           slotTime.setHours(hour, 0, 0, 0);
+
           let status = "Tersedia";
-          if (slotTime < now && date.toDateString() === today.toDateString())
-            status = "Berlangsung";
+          if (slotTime < now && date.toDateString() === today.toDateString()) {
+            status = "Tidak Tersedia";
+          }
+          // Anda bisa menambahkan logika untuk mengecek booking dari server di sini
+          // dan mengubah status menjadi "Dipesan"
+
+          const isExpanded = expandedSlot === hour;
 
           return (
-            <div key={hour} style={{ width: "350px" }}>
+            <div
+              key={hour}
+              className={`slot-wrapper ${isExpanded ? "expanded" : ""}`}
+            >
               <div
+                className={`slot-header status-${status
+                  .toLowerCase()
+                  .replace(" ", "-")}`}
                 onClick={() =>
                   status === "Tersedia" &&
-                  setExpandedSlot(expandedSlot === hour ? null : hour)
+                  setExpandedSlot(isExpanded ? null : hour)
                 }
-                style={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  padding: "10px",
-                  borderRadius: "8px",
-                  background: status === "Tersedia" ? "#ffcc00" : "#ccc",
-                  color: status === "Tersedia" ? "#000" : "#666",
-                  cursor: status === "Tersedia" ? "pointer" : "not-allowed",
-                }}
               >
-                <span>{status}</span>
                 <span>Jam {hour}:00</span>
+                <span>{status}</span>
               </div>
 
-              {expandedSlot === hour && (
-                <div style={{ marginTop: "8px", paddingLeft: "10px" }}>
-                  {fields.map((f) => (
-                    <div
-                      key={f.id}
-                      style={{
-                        marginBottom: "8px",
-                        padding: "8px",
-                        border: "1px solid #ddd",
-                        borderRadius: "6px",
-                        background: "#f9f9f9",
-                        textAlign: "left",
-                      }}
-                    >
-                      <div>
-                        <strong>{f.name}</strong> - {f.type}
-                      </div>
-                      <button
-                        onClick={() => handleBooking(hour, f.id, f.price_per_hour)}
-                        style={{ marginTop: "5px", padding: "5px 10px" }}
-                      >
-                        Booking Rp{f.price_per_hour}
-                      </button>
+              <div className="slot-details">
+                {fields.map((f) => (
+                  <div key={f.id} className="field-card">
+                    <div className="field-info">
+                      <strong>{f.name}</strong> - {f.type || "Tipe Standar"}
                     </div>
-                  ))}
-                </div>
-              )}
+                    <button
+                      className="booking-button"
+                      onClick={() =>
+                        handleBooking(hour, f.id, f.price_per_hour)
+                      }
+                    >
+                      Booking Rp{f.price_per_hour}
+                    </button>
+                  </div>
+                ))}
+              </div>
             </div>
           );
         })}
